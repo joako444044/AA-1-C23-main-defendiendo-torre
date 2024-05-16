@@ -31,9 +31,11 @@ class CannonBall {
       this.trayector.push([pos.x,pos.y]);
 
     }
+    
     for (var t = 0; t < this.trayector.length; t++){
       image(this.image, this.trayector[t][0],this.trayector[t][1] - 10, 10, 10);
 
+    
     }
   }
 }

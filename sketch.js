@@ -55,8 +55,9 @@ function draw() {
     if (e.keyCode === DOWN_ARROW){
       console.log("hi");
       balls[balls.length - 1].shoot();
+
     }
-    
+
   }
   
 function keyPressed(){
@@ -64,8 +65,12 @@ function keyPressed(){
     {
       var cannon_ball = new CannonBall(cannon.x + 5,cannon.y + 5);
       Body.setAngle(cannon_ball.body, cannon.angle);
-      balls.push(cannon_ball);
+      balls.forEach(element => {
+        element.trayector = [];
+      });
       cannon_ball.trayector = [];
+      balls.push(cannon_ball);
+      
     }
 }
 
