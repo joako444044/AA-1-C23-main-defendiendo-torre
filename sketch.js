@@ -10,7 +10,10 @@ var balls = [];
 var boats = [];
 var sailing_boat = [];
 var crashing_boat = [];
-
+var splashing_ball = [];
+var sound_back;
+var collided = false;
+var score = 0;
 function preload() {
   backgroundImg = loadImage("./assets/background.gif");
   towerImage = loadImage("./assets/tower.png");
@@ -18,6 +21,12 @@ function preload() {
   img_boats = loadImage("./ship-sailing.png");
   json_crash = loadJSON("./broken-ship-01.json");
   img_crash = loadImage("./broken-ship-01.png");
+  json_splash = loadJSON("./water_splash.json");
+  img_splash = loadImage("./water_splash.png");
+  sound_back = loadSound("./background_music.mp3");
+  sound_laght = loadSound("./pirare_laugh.mp3");
+  sound_splash = loadSound("./cannon_water.mp3");
+  sound_shoot = loadSound("./cannon_explosion.mp3");
 }
 
 function setup() {
@@ -26,19 +35,26 @@ function setup() {
   world = engine.world;
   angle = 20
   angleMode(DEGREES);
-
+  
   ground = Bodies.rectangle(0, height - 1, width * 2, 1, { isStatic: true });
   World.add(world, ground);
-
+  
   tower = Bodies.rectangle(160, 350, 160, 310, { isStatic: true });
   World.add(world, tower);
   frame = json_boats.frames;
   for (i=0; i<frame.length; i++){
-  pos = frame[i].frame;
-  img = img_boats.get(pos.x, pos.y, pos.w, pos.h);
-  sailing_boat.push(img);
-  }
-  cannon = new Cannon(180, 110, 130, 100, angle);
+    pos = frame[i].frame;
+    img = img_boats.get(pos.x, pos.y, pos.w, pos.h);
+    sailing_boat.push(img);
+    }
+    frame_splash = json_splash.frames;
+      for (f=0; f<frame_splash.length; f++){
+       pos = frame_splash[f].position;
+       img = img_splash.get(pos.x,pos.y,pos.width,pos.height);
+       splashing_ball.push(img);
+      }
+      
+    cannon = new Cannon(180, 110, 130, 100, angle);
   
 }
 
@@ -52,6 +68,10 @@ function draw() {
   imageMode(CENTER);
   image(towerImage, tower.position.x, tower.position.y, 160, 310);
   pop();
+    if (!sound_back.isPlaying()){
+       sound_back.play();
+       sound_back.setVolume(0.5);
+    }
   
   for (var i = 0; i < balls.length; i++)
     {
@@ -60,12 +80,29 @@ function draw() {
       collisionWithBoat(i);
     }
     cannon.display();
-    spawn_boat()
-  }
+    spawn_boat();
+    for(b=0;b < boats.length; b++){
+      if(boats[b] != undefined){
+        died = Matter.SAT.collides(boats[b].body, tower);
+        if(died.collided){
+          if (!sound_laght.isPlaying()){
+            sound_laght.play();
+       }
+         gameover();     
+        }
+
+        }
+      }
+      textSize(40);
+      fill("red");
+      text("puntuacion: " + score, width* 0.7, height * 0.1);
+
+    }
   
   function keyReleased(e){
     if (e.keyCode === DOWN_ARROW){
       console.log("hi");
+      sound_shoot.play();
       balls[balls.length - 1].shoot();
 
     }
@@ -73,9 +110,10 @@ function draw() {
   }
   
 function keyPressed(e){
+
   if (e.keyCode === DOWN_ARROW)
     {
-      var cannon_ball = new CannonBall(cannon.x + 5,cannon.y + 5);
+      var cannon_ball = new CannonBall(cannon.x + 5,cannon.y + 5, splashing_ball);
       Body.setAngle(cannon_ball.body, cannon.angle);
       balls.forEach(element => {
         element.trayector = [];
@@ -89,8 +127,13 @@ function keyPressed(e){
 function show_cannon_balls(ball, index){
   if (ball){
     ball.display();
+    ball.animate();
     if (ball.body.position.x > width || ball.body.position.y > height){
      ball.remove(index);
+     if (!sound_splash.isPlaying()){
+     sound_splash.play();
+     }
+     
     }
   }
 
@@ -120,7 +163,7 @@ function collisionWithBoat(index){
     if (balls[index] != undefined && boats[i] != undefined){
       var collition = Matter.SAT.collides(balls[index].body, boats[i].body);
       if (collition.collided){
-      
+       score++;
         frame = json_crash.frames;
       for (k=0; k<frame.length; k++){
       pos = frame[k].frame;
@@ -129,10 +172,26 @@ function collisionWithBoat(index){
       }
        boats[i].animation = crashing_boat;
         boats[i].remove(i);
-        balls[index].remove(i);
+
+        balls[index].remove(index);
       
         
       }
     }
   }
+}
+
+function gameover(){
+  if(!collided){
+  swal({
+    title: "Fin del jueguo",
+    text: "buen intento defendiendo la torre",
+    icon:"assets/boat.jpg" ,
+    button:"volver a intentar",
+
+  }).then (name => {
+  location.reload();
+  });
+}
+collided = true;
 }

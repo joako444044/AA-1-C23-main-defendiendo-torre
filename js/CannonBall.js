@@ -1,11 +1,14 @@
 class CannonBall {
-  constructor(x, y) {
+  constructor(x, y,animation) {
     var options = {
       isStatic: true
     };
     this.r = 30;
     this.body = Bodies.circle(x, y, this.r, options);
+    this.speed = 0.5;
     this.image = loadImage("./assets/cannonball.png");
+    this.animation1 = [this.image];
+    this.animation2 = animation;
     World.add(world, this.body);
     this.trayector = [];
   }
@@ -22,9 +25,10 @@ class CannonBall {
   display() 
   {
     var pos = this.body.position;
+    var index = floor(this.speed % this.animation1.length); 
     push();
     imageMode(CENTER);
-    image(this.image, pos.x, pos.y, this.r, this.r);
+    image(this.animation1[index], pos.x, pos.y, this.r, this.r);
     pop();
     if (this.body.velocity.x > 0 && pos.x > 10)
     {
@@ -40,6 +44,7 @@ class CannonBall {
   }
   remove(index){
     Matter.Body.setVelocity(this.body,{x:0,y:0});
+    this.animation1 = this.animation2;
     setTimeout(() => {
     Matter.World.remove(world,this.body)
     delete balls[index]
@@ -47,4 +52,7 @@ class CannonBall {
     },1000)
 
   }
+  animate(){
+    this.speed += 0.05;
+   }
 }
