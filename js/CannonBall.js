@@ -44,7 +44,7 @@ class CannonBall {
   }
   remove(index){
     Matter.Body.setVelocity(this.body,{x:0,y:0});
-    this.animation1 = this.animation2;
+    
     setTimeout(() => {
     Matter.World.remove(world,this.body)
     delete balls[index]

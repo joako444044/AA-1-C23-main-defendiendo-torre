@@ -49,9 +49,9 @@ function setup() {
     }
     frame_splash = json_splash.frames;
       for (f=0; f<frame_splash.length; f++){
-       pos = frame_splash[f].position;
-       img = img_splash.get(pos.x,pos.y,pos.width,pos.height);
-       splashing_ball.push(img);
+       pos1 = frame_splash[f].position;
+       img1 = img_splash.get(pos1.x,pos1.y,pos1.w,pos1.h);
+       splashing_ball.push(img1);
       }
       
     cannon = new Cannon(180, 110, 130, 100, angle);
@@ -128,10 +128,13 @@ function show_cannon_balls(ball, index){
   if (ball){
     ball.display();
     ball.animate();
-    if (ball.body.position.x > width || ball.body.position.y > height){
+    if (ball.body.position.x > width || ball.body.position.y > height - 105){
+      ball.speed = 0.05
+      ball.animation1 = ball.animation2;
      ball.remove(index);
      if (!sound_splash.isPlaying()){
      sound_splash.play();
+
      }
      
     }
